@@ -5,9 +5,7 @@ name: Go
 
 on:
   release:
-
-  pull_request:
-    branches: ["main"]
+    types: ["created"]
 
 jobs:
   release:
