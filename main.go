@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"filippo.io/age"
-	"filippo.io/age/armor"
 	"github.com/tdewolff/argp"
 	"golang.org/x/crypto/chacha20poly1305"
 )
@@ -24,15 +23,16 @@ func (cmd *Main) Run() error {
 	return argp.ShowUsage
 }
 
-const ACE_PREFIX = "#ace/v1:"
+const ACE_PREFIX = "# ace/v1:"
 
 type EnvVar struct {
 	K, V string
 }
 
 type Get struct {
-	EnvFile  string `index:"0" default:".env.env"`
-	Identity string `short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
+	EnvFile  string   `name:"env-file" short:"e" default:"./.env.ace"`
+	Identity string   `name:"identity" short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
+	Keys     []string `name:"keys" index:"*"`
 }
 
 func (cmd *Get) Run() error {
@@ -67,6 +67,18 @@ func (cmd *Get) Run() error {
 	}
 
 	for _, kv := range vars {
+		if len(cmd.Keys) > 0 {
+			var match bool
+			for _, k := range cmd.Keys {
+				if strings.HasPrefix(kv, k+"=") {
+					match = true
+					break
+				}
+			}
+			if !match {
+				continue
+			}
+		}
 		fmt.Fprintln(os.Stdout, kv)
 	}
 
@@ -74,21 +86,25 @@ func (cmd *Get) Run() error {
 }
 
 type Set struct {
-	EnvFile    string   `index:"0" default:".env.env"`
-	EnvPairs   []string `name:"rest" index:"*"`
-	Recipients string   `short:"r" default:"./recipients.txt"`
+	Recipients []string `name:"recipients" short:"r" default:"./recipients.txt"`
+	EnvFile    string   `name:"env-file" short:"e" default:"./.env.ace"`
+	EnvPairs   []string `name:"env" index:"*"`
 }
 
 func (cmd *Set) Run() error {
-	rcp, err := os.Open(cmd.Recipients)
-	if err != nil {
-		return err
-	}
-	defer rcp.Close()
+	var recipients []age.Recipient
+	for _, r := range cmd.Recipients {
+		rcp, err := os.Open(r)
+		if err != nil {
+			return err
+		}
+		defer rcp.Close()
 
-	recipients, err := age.ParseRecipients(rcp)
-	if err != nil {
-		return err
+		rec, err := age.ParseRecipients(rcp)
+		if err != nil {
+			return err
+		}
+		recipients = append(recipients, rec...)
 	}
 
 	blockKey := make([]byte, chacha20poly1305.KeySize)
@@ -99,11 +115,8 @@ func (cmd *Set) Run() error {
 	buf := bytes.NewBuffer(nil)
 
 	// encrypt the key using age
-	err = func() error {
-		a := armor.NewWriter(buf)
-		defer a.Close()
-
-		w, err := age.Encrypt(a, recipients...)
+	err := func() error {
+		w, err := age.Encrypt(buf, recipients...)
 		if err != nil {
 			return err
 		}
@@ -119,7 +132,7 @@ func (cmd *Set) Run() error {
 		return err
 	}
 
-	dst, err := os.OpenFile(cmd.EnvFile, os.O_CREATE|os.O_APPEND, 0666)
+	dst, err := os.OpenFile(cmd.EnvFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
 	}
@@ -174,18 +187,9 @@ func (cmd *Set) Run() error {
 	return nil
 }
 
-func main() {
-	main := &Main{}
-	argp := argp.NewCmd(main, "age")
-	argp.AddCmd(&Set{}, "set", "Append encrypted env vars to file")
-	argp.AddCmd(&Get{}, "get", "Decrypt env with available identities")
-	argp.AddCmd(&Env{}, "env", "Expand to env and pass to command")
-	argp.Parse()
-}
-
 type Env struct {
-	EnvFile  string   `index:"0" default:".env.env"`
-	Identity string   `short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
+	EnvFile  string   `name:"env-file" short:"e" default:"./.env.ace"`
+	Identity string   `name:"identity" short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
 	Command  []string `index:"*"`
 }
 
@@ -250,7 +254,6 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 
 			var r io.Reader
 			r = bytes.NewReader(header)
-			r = armor.NewReader(r)
 
 			// decrypt the block key using identities
 			r, err = age.Decrypt(r, identities...)
@@ -318,4 +321,13 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 	}
 
 	return newVars, nil
+}
+
+func main() {
+	main := &Main{}
+	argp := argp.NewCmd(main, "age")
+	argp.AddCmd(&Set{}, "set", "Append encrypted env vars to file")
+	argp.AddCmd(&Get{}, "get", "Decrypt env with available identities")
+	argp.AddCmd(&Env{}, "env", "Expand to env and pass to command")
+	argp.Parse()
 }

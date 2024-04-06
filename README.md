@@ -4,13 +4,15 @@
 
 - Append-only allows the file to be updated without needing to be able to decrypt any previous environment variables.
 - Encrypted variables, while keys are public so it's easy to see any changes
+- Separate blocks for different recipients, only blocks that can be decrypted with the provided identity will be available. Useful for having some env vars available to CI or different services sharing the same env file.
+- Builds on age-encryption.org
 
 ## API
 
-- `ace set .env.enc [KEY=VALUE]`
+- `ace set .env.enc [KEY=VALUE...]`
 - `ace set .env.enc < .env`
 - `ace get .env.enc`
-- `ace env .env.enc -- command`
+- `ace env .env.enc command`
 
 Ex.
 
