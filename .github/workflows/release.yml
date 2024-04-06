@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        goos: [linux, windows, macos]
+        goos: [linux, windows, darwin]
         arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v3
