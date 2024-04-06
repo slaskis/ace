@@ -23,24 +23,36 @@ Or if you have a Go environment setup you may also install it using `go install 
 
 To begin using ACE, follow these simple steps:
 
-1. **Set Environment Variables**:
+1.  **Create a key**:
 
-   ```bash
-   ace set MY_KEY=value
-   ace set < .env
-   ```
+    ```bash
+    age-keygen -o $XDG_CONFIG_HOME/ace/identity
+    ```
 
-2. **Retrieve Environment Variables**:
+2.  **Add a recipient**:
 
-   ```bash
-   ace get
-   ace get DATABASE_URL REDIS_URL
-   ```
+    ```bash
+    age-keygen -y $XDG_CONFIG_HOME/ace/identity > recipients.txt
+    ```
 
-3. **Execute Command with Environment**:
-   ```bash
-   ace env <COMMAND WITH ARGS...>
-   ```
+3.  **Set Environment Variables**:
+
+    ```bash
+    ace set DATABASE_URL=postgres://example.com/db1 REDIS_URL=redis://example.com/db2
+    ace set < .env
+    ```
+
+4.  **Retrieve Environment Variables**:
+
+    ```bash
+    ace get
+    ace get DATABASE_URL
+    ```
+
+5.  **Execute Command with Environment**:
+    ```bash
+    ace env -- <COMMAND WITH ARGS...>
+    ```
 
 ## Detailed Examples
 
