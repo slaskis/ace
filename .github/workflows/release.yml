@@ -1,0 +1,41 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  release:
+
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, macos]
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.arch }} go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v ./...
+
+      - name: Upload
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}",
+              data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}")
+            })
