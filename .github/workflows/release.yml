@@ -5,7 +5,7 @@ name: Go
 
 on:
   release:
-    types: ["created"]
+    types: [created, prereleased, edited, released]
 
 jobs:
   release:
