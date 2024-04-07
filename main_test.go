@@ -21,7 +21,8 @@ func TestAce(t *testing.T) {
 		}
 
 		{
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: []string{"testdata/recipients1.txt"}, Input: strings.NewReader("X=1\nY=2\nZ=3")}
+			input = strings.NewReader("X=1\nY=2\nZ=3")
+			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: []string{"testdata/recipients1.txt"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -29,7 +30,8 @@ func TestAce(t *testing.T) {
 		}
 		{
 			buf := &bytes.Buffer{}
-			cmd := &Get{EnvFile: "testdata/.env1.ace", Identity: "testdata/identity1", Output: buf}
+			output = buf
+			cmd := &Get{EnvFile: "testdata/.env1.ace", Identity: "testdata/identity1"}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -63,7 +65,8 @@ func TestAce(t *testing.T) {
 		}
 		t.Run("identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity1", Output: buf}
+			output = buf
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity1"}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -72,7 +75,8 @@ func TestAce(t *testing.T) {
 		})
 		t.Run("identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity2", Output: buf}
+			output = buf
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity2"}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -81,7 +85,8 @@ func TestAce(t *testing.T) {
 		})
 		t.Run("identity3", func(t *testing.T) {
 			buf := &bytes.Buffer{}
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity3", Output: buf}
+			output = buf
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identity: "testdata/identity3"}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -101,7 +106,8 @@ func TestAce(t *testing.T) {
 
 		t.Run("identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
-			cmd := &Env{EnvFile: "testdata/.env3.ace", Identity: "testdata/identity1", Command: []string{"sh", "-c", "echo $A $B $C"}, Output: buf}
+			output = buf
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identity: "testdata/identity1", Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -110,7 +116,8 @@ func TestAce(t *testing.T) {
 		})
 		t.Run("identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
-			cmd := &Env{EnvFile: "testdata/.env3.ace", Identity: "testdata/identity2", Command: []string{"sh", "-c", "echo $A $B $C"}, Output: buf}
+			output = buf
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identity: "testdata/identity2", Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)

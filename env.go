@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 
@@ -13,7 +12,6 @@ type Env struct {
 	EnvFile  string   `name:"env-file" short:"e" default:"./.env.ace"`
 	Identity string   `name:"identity" short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
 	Command  []string `index:"*"`
-	Output   io.Writer
 }
 
 func (cmd *Env) Run() error {
@@ -55,6 +53,6 @@ func (cmd *Env) Run() error {
 	c.Env = append(os.Environ(), vars...)
 	c.Stdin = os.Stdin
 	c.Stderr = os.Stderr
-	c.Stdout = cmd.Output
+	c.Stdout = output
 	return c.Run()
 }
