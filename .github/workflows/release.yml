@@ -18,8 +18,14 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Test
+        run: go test -v ./...
+
       - name: Build
-        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.arch }} go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v ./...
+        run: go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v ./...
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.arch }}
 
       - name: Upload
         uses: actions/github-script@v7
