@@ -1,3 +1,4 @@
 recipients.txt
 internal/prefixer/
 .env.ace
+testdata/*.ace
