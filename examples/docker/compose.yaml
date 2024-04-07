@@ -1,0 +1,12 @@
+services:
+  env:
+    build: .
+    secrets:
+      - env
+      - identity
+
+secrets:
+  env:
+    file: ./.env.ace
+  identity:
+    file: ./identity
