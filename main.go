@@ -7,6 +7,7 @@ import (
 	"encoding/base32"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"filippo.io/age"
@@ -44,7 +45,11 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 
 			// decrypt the block key using identities
 			r, err = age.Decrypt(r, identities...)
-			if err != nil {
+			if err != nil && err.Error() == "no identity matched any of the recipients" {
+				// try next env block
+				aead = nil
+				continue
+			} else if err != nil {
 				return nil, err
 			}
 			blockKey, err := io.ReadAll(r)
@@ -64,6 +69,10 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 		// decrypt each secret using block key
 		pair := strings.SplitN(line, "=", 2)
 		if len(pair) != 2 {
+			continue
+		}
+
+		if aead == nil {
 			continue
 		}
 
@@ -99,9 +108,9 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 
 func main() {
 	main := &Main{}
-	argp := argp.NewCmd(main, "age")
+	argp := argp.NewCmd(main, "ace")
 	argp.AddCmd(&Set{}, "set", "Append encrypted env vars to file")
-	argp.AddCmd(&Get{}, "get", "Decrypt env with available identities")
+	argp.AddCmd(&Get{Output: os.Stdout}, "get", "Decrypt env with available identities")
 	argp.AddCmd(&Env{}, "env", "Expand to env and pass to command")
 	argp.Parse()
 }

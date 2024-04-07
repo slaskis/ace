@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -12,6 +13,7 @@ type Get struct {
 	EnvFile  string   `name:"env-file" short:"e" default:"./.env.ace"`
 	Identity string   `name:"identity" short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
 	Keys     []string `name:"keys" index:"*"`
+	Output   io.Writer
 }
 
 func (cmd *Get) Run() error {
@@ -58,7 +60,7 @@ func (cmd *Get) Run() error {
 				continue
 			}
 		}
-		fmt.Fprintln(os.Stdout, kv)
+		fmt.Fprintln(cmd.Output, kv)
 	}
 
 	return nil
