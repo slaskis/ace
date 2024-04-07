@@ -22,7 +22,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v ./...
+        run: go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.arch }}
