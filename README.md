@@ -102,6 +102,3 @@ ACE was meant for a workflow where a project can store all secrets in the git re
 
 ACE leans on the simple and reliable age-encryption.org. The security of this implementation has not been vetted by security professionals, and keeping keys secure is outside of the scope of this tool.
 
-## Contributing
-
-We welcome contributions! Please see our contribution guidelines for how to submit pull requests, report issues, and suggest improvements.
