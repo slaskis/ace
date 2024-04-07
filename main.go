@@ -109,8 +109,8 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 func main() {
 	main := &Main{}
 	argp := argp.NewCmd(main, "ace")
-	argp.AddCmd(&Set{}, "set", "Append encrypted env vars to file")
+	argp.AddCmd(&Set{Input: os.Stdin}, "set", "Append encrypted env vars to file")
 	argp.AddCmd(&Get{Output: os.Stdout}, "get", "Decrypt env with available identities")
-	argp.AddCmd(&Env{}, "env", "Expand to env and pass to command")
+	argp.AddCmd(&Env{Output: os.Stdout}, "env", "Expand to env and pass to command")
 	argp.Parse()
 }

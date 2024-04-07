@@ -13,11 +13,11 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-
 type Set struct {
 	Recipients []string `name:"recipients" short:"r" default:"./recipients.txt"`
 	EnvFile    string   `name:"env-file" short:"e" default:"./.env.ace"`
 	EnvPairs   []string `name:"env" index:"*"`
+	Input      io.Reader
 }
 
 func (cmd *Set) Run() error {
@@ -79,7 +79,7 @@ func (cmd *Set) Run() error {
 
 	pairs := cmd.EnvPairs
 	if len(pairs) == 0 {
-		s := bufio.NewScanner(os.Stdin)
+		s := bufio.NewScanner(cmd.Input)
 		for s.Scan() {
 			line := strings.TrimSpace(s.Text())
 			if strings.HasPrefix(line, "#") {
