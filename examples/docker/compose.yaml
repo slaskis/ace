@@ -1,6 +1,8 @@
 services:
   env:
+    image: docker.io/slaskis/ace-example:latest
     build: .
+    restart: no
     secrets:
       - env
       - identity
