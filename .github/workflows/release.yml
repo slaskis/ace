@@ -22,9 +22,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: |
-          go build -ldflags '-s -w' -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
-          tar -cJf ace-${{ matrix.goos }}-${{ matrix.arch }}.tar.xz ace-${{ matrix.goos }}-${{ matrix.arch }}
+        run: go build -ldflags '-s -w' -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.arch }}
@@ -39,6 +37,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: context.payload.release.id,
-              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}.tar.xz",
-              data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}.tar.xz")
+              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}",
+              data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}")
             })
