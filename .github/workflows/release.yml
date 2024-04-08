@@ -39,6 +39,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: context.payload.release.id,
-              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}",
+              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}.tar.xz",
               data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}.tar.xz")
             })
