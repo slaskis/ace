@@ -22,10 +22,11 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: go build -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
+        run: go build -ldflags '-s -w' -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
 
       - name: Upload
         uses: actions/github-script@v7
