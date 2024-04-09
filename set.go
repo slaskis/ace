@@ -10,18 +10,24 @@ import (
 	"strings"
 
 	"filippo.io/age"
+	"github.com/tdewolff/argp"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 type Set struct {
-	Recipients []string `name:"recipients" short:"r" default:"./recipients.txt"`
-	EnvFile    string   `name:"env-file" short:"e" default:"./.env.ace"`
-	EnvPairs   []string `name:"env" index:"*"`
+	Recipients argp.Append `name:"recipients" short:"r" desc:"Defaults to ./recipients.txt"`
+	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
+	EnvPairs   []string    `name:"env" index:"*"`
 }
 
 func (cmd *Set) Run() error {
+	recs := *cmd.Recipients.I.(*[]string)
+	if len(recs) == 0 {
+		recs = []string{"./recipients.txt"}
+	}
+
 	var recipients []age.Recipient
-	for _, r := range cmd.Recipients {
+	for _, r := range recs {
 		rcp, err := os.Open(r)
 		if err != nil {
 			return err

@@ -4,7 +4,7 @@ go 1.21.5
 
 require (
 	filippo.io/age v1.1.1
-	github.com/tdewolff/argp v0.0.0-20231229133132-ebbc03b216f1
+	github.com/tdewolff/argp v0.0.0-20240126212256-acdb2fb50090
 	golang.org/x/crypto v0.4.0
 )
 

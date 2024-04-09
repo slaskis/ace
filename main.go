@@ -111,9 +111,11 @@ var input io.Reader = os.Stdin
 var output io.Writer = os.Stdout
 
 func main() {
-	argp := argp.NewCmd(&Main{}, "ace")
-	argp.AddCmd(&Set{}, "set", "Append encrypted env vars to file")
-	argp.AddCmd(&Get{}, "get", "Decrypt env with available identities")
-	argp.AddCmd(&Env{}, "env", "Expand to env and pass to command")
-	argp.Parse()
+
+	var r, i []string
+	cmd := argp.NewCmd(&Main{}, "ace")
+	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}}, "set", "Append encrypted env vars to file")
+	cmd.AddCmd(&Get{Identities: argp.Append{I: &i}}, "get", "Decrypt env with available identities")
+	cmd.AddCmd(&Env{Identities: argp.Append{I: &i}}, "env", "Expand to env and pass to command")
+	cmd.Parse()
 }

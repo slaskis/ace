@@ -6,12 +6,13 @@ import (
 	"strings"
 
 	"filippo.io/age"
+	"github.com/tdewolff/argp"
 )
 
 type Get struct {
-	EnvFile  string   `name:"env-file" short:"e" default:"./.env.ace"`
-	Identity string   `name:"identity" short:"i" default:"$XDG_CONFIG_HOME/ace/identity"`
-	Keys     []string `name:"keys" index:"*"`
+	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
+	Identities argp.Append `name:"identity" short:"i" desc:"Defaults to $XDG_CONFIG_HOME/ace/identity"`
+	Keys       []string    `name:"keys" index:"*"`
 }
 
 func (cmd *Get) Run() error {
@@ -29,15 +30,30 @@ func (cmd *Get) Run() error {
 		os.Setenv("XDG_CONFIG_HOME", dir)
 	}
 
-	i, err := os.Open(os.ExpandEnv(cmd.Identity))
-	if err != nil {
-		return err
+	idents := *cmd.Identities.I.(*[]string)
+	if len(idents) == 0 {
+		idents = []string{"$XDG_CONFIG_HOME/ace/identity"}
 	}
-	defer i.Close()
 
-	identities, err := age.ParseIdentities(i)
-	if err != nil {
-		return err
+	var identities []age.Identity
+	for _, id := range idents {
+		err := func() error {
+			i, err := os.Open(os.ExpandEnv(id))
+			if err != nil {
+				return err
+			}
+			defer i.Close()
+
+			idents, err := age.ParseIdentities(i)
+			if err != nil {
+				return err
+			}
+			identities = append(identities, idents...)
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
 	}
 
 	vars, err := readEnvFile(src, identities)
