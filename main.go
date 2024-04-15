@@ -110,6 +110,9 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 var input io.Reader = os.Stdin
 var output io.Writer = os.Stdout
 
+// this is set using `-ldflags "-X main.version=1.2.3"`
+var version string
+
 func main() {
 
 	var r, i []string
@@ -117,5 +120,6 @@ func main() {
 	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}}, "set", "Append encrypted env vars to file")
 	cmd.AddCmd(&Get{Identities: argp.Append{I: &i}}, "get", "Decrypt env with available identities")
 	cmd.AddCmd(&Env{Identities: argp.Append{I: &i}}, "env", "Expand to env and pass to command")
+	cmd.AddCmd(&Version{version: version}, "version", "Command version")
 	cmd.Parse()
 }
