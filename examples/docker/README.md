@@ -7,6 +7,7 @@ It also shows that it works with a scratch image, which may be useful in statica
 ## How to run
 
 ```sh
+GOOS=linux go build -o env .
 docker build -t slaskis/ace-example:scratch .
 docker run \
 	--mount type=bind,source="$(pwd)"/.env.ace,target=/run/secrets/env,readonly \
