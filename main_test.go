@@ -11,10 +11,24 @@ import (
 )
 
 func TestAce(t *testing.T) {
+	t.Run("set with missing default recipient file path", func(t *testing.T) {
+		cmd := &Set{EnvFile: "testdata/.env.invalid.ace", Recipients: argp.Append{I: &([]string{})}, EnvPairs: []string{"A=1", "B=2"}}
+		err := cmd.Run()
+		if err == nil {
+			t.Fatal("expected an error due to missing recipients file, but none occurred")
+		}
+	})
+	t.Run("get with invalid identity file path", func(t *testing.T) {
+		cmd := &Get{EnvFile: "testdata/.env.invalid.ace", Identities: argp.Append{I: &([]string{"testdata/nonexistent_identity.txt"})}}
+		err := cmd.Run()
+		if err == nil {
+			t.Fatal("expected an error due to missing identity file, but none occurred")
+		}
+	})
 	t.Run("single recipient", func(t *testing.T) {
 		os.Remove("testdata/.env1.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 ", "D ignored"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -22,7 +36,7 @@ func TestAce(t *testing.T) {
 		}
 
 		{
-			input = strings.NewReader("X=1\nY=2\nZ=3")
+			input = strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")
 			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}}
 			err := cmd.Run()
 			if err != nil {
