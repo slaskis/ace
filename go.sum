@@ -1,12 +1,10 @@
 filippo.io/age v1.1.1 h1:pIpO7l151hCnQ4BdyBujnGP2YlUo0uj6sAVNHGBvXHg=
 filippo.io/age v1.1.1/go.mod h1:l03SrzDUrBkdBx8+IILdnn2KZysqQdbEBUQ4p3sqEQE=
-github.com/tdewolff/argp v0.0.0-20231229133132-ebbc03b216f1 h1:/uJ4puhX8cB3Q4hCHYuuqRmMZ2+fEMu8H1OnWvLF3V4=
-github.com/tdewolff/argp v0.0.0-20231229133132-ebbc03b216f1/go.mod h1:fF+gnKbmf3iMG+ErLiF+orMU/InyZIEnKVVigUjfriw=
 github.com/tdewolff/argp v0.0.0-20240126212256-acdb2fb50090 h1:ok0U1tNDp9ICD93bMrZuFtHLwDoW+5nfSfF8e/x36Y0=
 github.com/tdewolff/argp v0.0.0-20240126212256-acdb2fb50090/go.mod h1:fF+gnKbmf3iMG+ErLiF+orMU/InyZIEnKVVigUjfriw=
 github.com/tdewolff/test v1.0.6 h1:76mzYJQ83Op284kMT+63iCNCI7NEERsIN8dLM+RiKr4=
 github.com/tdewolff/test v1.0.6/go.mod h1:6DAvZliBAAnD7rhVgwaM7DE5/d9NMOAJ09SqYqeK4QE=
-golang.org/x/crypto v0.4.0 h1:UVQgzMY87xqpKNgb+kDsll2Igd33HszWHFLmpaRMq/8=
-golang.org/x/crypto v0.4.0/go.mod h1:3quD/ATkf6oY+rnes5c3ExXTbLc8mueNue5/DoinL80=
-golang.org/x/sys v0.3.0 h1:w8ZOecv6NaNa/zC8944JTU3vz4u6Lagfk4RPQxv92NQ=
-golang.org/x/sys v0.3.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/crypto v0.17.0 h1:r8bRNjWL3GshPW3gkd+RpvzWrZAwPS49OmTGZ/uhM4k=
+golang.org/x/crypto v0.17.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq4=
+golang.org/x/sys v0.15.0 h1:h48lPFYpsTvQJZF4EKyI4aLHaev3CxivZmv7yZig9pc=
+golang.org/x/sys v0.15.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
