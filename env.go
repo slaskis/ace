@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 
@@ -10,6 +12,7 @@ import (
 )
 
 type Env struct {
+	OnMissing  string      `name:"on-missing" default:"error" desc:"How to handle when env-file or identity is missing, can be 'ignore', 'warn' or 'error'"`
 	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
 	Identities argp.Append `name:"identity" short:"i" desc:"Defaults to $XDG_CONFIG_HOME/ace/identity"`
 	Command    []string    `index:"*"`
@@ -21,7 +24,19 @@ func (cmd *Env) Run() error {
 	}
 	src, err := os.Open(cmd.EnvFile)
 	if err != nil {
-		return err
+		if errors.Is(err, os.ErrNotExist) {
+			switch cmd.OnMissing {
+			case "ignore":
+				return nil
+			case "warn", "warning":
+				log.Println("env-file not found")
+				return nil
+			default:
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 	defer src.Close()
 
@@ -43,7 +58,19 @@ func (cmd *Env) Run() error {
 		err := func() error {
 			i, err := os.Open(os.ExpandEnv(id))
 			if err != nil {
-				return err
+				if errors.Is(err, os.ErrNotExist) {
+					switch cmd.OnMissing {
+					case "ignore":
+						return nil
+					case "warn", "warning":
+						log.Println("identity not found")
+						return nil
+					default:
+						return err
+					}
+				} else {
+					return err
+				}
 			}
 			defer i.Close()
 
@@ -61,7 +88,19 @@ func (cmd *Env) Run() error {
 
 	vars, err := readEnvFile(src, identities)
 	if err != nil {
-		return err
+		if err.Error() == "no identities specified" {
+			switch cmd.OnMissing {
+			case "ignore":
+				return nil
+			case "warn", "warning":
+				log.Println(err.Error())
+				return nil
+			default:
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	// run command with vars added

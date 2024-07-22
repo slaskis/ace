@@ -140,6 +140,71 @@ func TestAce(t *testing.T) {
 			}
 			test.Snapshot(t, buf.Bytes())
 		})
+		t.Run("env-file on-missing=error", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err == nil {
+				t.Fatal("expected not such file or directory")
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
+
+		t.Run("env-file on-missing=warn", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
+
+		t.Run("env-file on-missing=ignore", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
+
+		t.Run("identity on-missing=error", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err == nil {
+				t.Fatal("expected not such file or directory")
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
+
+		t.Run("identity on-missing=warn", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
+
+		t.Run("identity on-missing=ignore", func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
 	})
 
 	t.Run("multiple recipients repeated flags", func(t *testing.T) {
