@@ -27,23 +27,23 @@ func (cmd *Env) Run() error {
 		if errors.Is(err, os.ErrNotExist) {
 			switch cmd.OnMissing {
 			case "ignore":
-				return nil
+				// silence
 			case "warn", "warning":
 				log.Println("env-file not found")
-				return nil
 			default:
 				return err
 			}
 		} else {
 			return err
 		}
+	} else {
+		defer src.Close()
 	}
-	defer src.Close()
 
 	if _, exists := os.LookupEnv("XDG_CONFIG_HOME"); !exists {
 		dir, err := os.UserConfigDir()
 		if err != nil {
-			return err
+			return fmt.Errorf("unable to read user config dir: %w", err)
 		}
 		os.Setenv("XDG_CONFIG_HOME", dir)
 	}
@@ -91,10 +91,9 @@ func (cmd *Env) Run() error {
 		if err.Error() == "no identities specified" {
 			switch cmd.OnMissing {
 			case "ignore":
-				return nil
+				// silence
 			case "warn", "warning":
 				log.Println(err.Error())
-				return nil
 			default:
 				return err
 			}

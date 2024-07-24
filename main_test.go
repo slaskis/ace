@@ -154,6 +154,7 @@ func TestAce(t *testing.T) {
 		t.Run("env-file on-missing=warn", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
+			t.Setenv("A", "woop")
 			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
@@ -165,6 +166,7 @@ func TestAce(t *testing.T) {
 		t.Run("env-file on-missing=ignore", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
+			t.Setenv("A", "woop")
 			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
@@ -187,6 +189,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity on-missing=warn", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
+			t.Setenv("A", "woop")
 			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
@@ -198,6 +201,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity on-missing=ignore", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
+			t.Setenv("A", "woop")
 			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
