@@ -12,7 +12,7 @@ import (
 
 func TestAce(t *testing.T) {
 	t.Run("set with missing default recipient file path", func(t *testing.T) {
-		cmd := &Set{EnvFile: "testdata/.env.invalid.ace", Recipients: argp.Append{I: &([]string{})}, EnvPairs: []string{"A=1", "B=2"}}
+		cmd := &Set{EnvFile: "testdata/.env.invalid.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{})}, EnvPairs: []string{"A=1", "B=2"}}
 		err := cmd.Run()
 		if err == nil {
 			t.Fatal("expected an error due to missing recipients file, but none occurred")
@@ -28,7 +28,7 @@ func TestAce(t *testing.T) {
 	t.Run("single recipient", func(t *testing.T) {
 		os.Remove("testdata/.env1.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 ", "D ignored"}}
+			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 ", "D ignored"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -37,7 +37,7 @@ func TestAce(t *testing.T) {
 
 		{
 			input = strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}}
+			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -58,21 +58,21 @@ func TestAce(t *testing.T) {
 	t.Run("multiple recipients", func(t *testing.T) {
 		os.Remove("testdata/.env2.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients12.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients12.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients13.txt"})}, EnvPairs: []string{"E=5"}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients13.txt"})}, EnvPairs: []string{"E=5"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -113,7 +113,7 @@ func TestAce(t *testing.T) {
 	t.Run("env", func(t *testing.T) {
 		os.Remove("testdata/.env3.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env3.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env3.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -214,21 +214,21 @@ func TestAce(t *testing.T) {
 	t.Run("multiple recipients repeated flags", func(t *testing.T) {
 		os.Remove("testdata/.env4.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt", "testdata/recipients2.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt", "testdata/recipients2.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{"testdata/recipients2.txt"})}, EnvPairs: []string{"C=333 "}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients2.txt"})}, EnvPairs: []string{"C=333 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
