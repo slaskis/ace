@@ -15,19 +15,28 @@ import (
 )
 
 type Set struct {
-	Recipients argp.Append `name:"recipients" short:"r" desc:"Defaults to ./recipients.txt"`
-	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
-	EnvPairs   []string    `name:"env" index:"*"`
+	RecipientFiles argp.Append `name:"recipient-file" short:"R" desc:"Encrypt to recipients listed at PATH. Can be repeated. Defaults to ./recipients.txt"`
+	Recipients     argp.Append `name:"recipient" short:"r" desc:"Encrypt to the specified RECIPIENT. Can be repeated."`
+	EnvFile        string      `name:"env-file" short:"e" default:"./.env.ace"`
+	EnvPairs       []string    `name:"env" index:"*"`
 }
 
 func (cmd *Set) Run() error {
 	recs := *cmd.Recipients.I.(*[]string)
-	if len(recs) == 0 {
-		recs = []string{"./recipients.txt"}
+	files := *cmd.RecipientFiles.I.(*[]string)
+	if len(files) == 0 {
+		files = []string{"./recipients.txt"}
 	}
 
 	var recipients []age.Recipient
 	for _, r := range recs {
+		rec, err := age.ParseX25519Recipient(r)
+		if err != nil {
+			return err
+		}
+		recipients = append(recipients, rec)
+	}
+	for _, r := range files {
 		rcp, err := os.Open(r)
 		if err != nil {
 			return err
