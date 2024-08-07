@@ -115,9 +115,9 @@ var version string
 
 func main() {
 
-	var r, i []string
+	var r, f, i []string
 	cmd := argp.NewCmd(&Main{}, "ace")
-	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}}, "set", "Append encrypted env vars to file")
+	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}, RecipientFiles: argp.Append{I: &f}}, "set", "Append encrypted env vars to file")
 	cmd.AddCmd(&Get{Identities: argp.Append{I: &i}}, "get", "Decrypt env with available identities")
 	cmd.AddCmd(&Env{Identities: argp.Append{I: &i}}, "env", "Expand to env and pass to command")
 	cmd.AddCmd(&Version{version: version}, "version", "Command version")
