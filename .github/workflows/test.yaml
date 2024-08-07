@@ -18,3 +18,22 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+  cover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Test
+        run: go test -coverprofile=coverage.out ./...
+
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: await exec.exec('go', ['tool', 'cover', '-func=coverage.out'])
+            })
