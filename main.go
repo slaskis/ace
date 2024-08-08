@@ -7,8 +7,10 @@ import (
 	"encoding/base32"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"filippo.io/age"
 	"github.com/tdewolff/argp"
@@ -114,6 +116,15 @@ var output io.Writer = os.Stdout
 var version string
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey && version == "test" {
+				a.Value = slog.TimeValue(time.Unix(0, 0))
+			}
+			return a
+		},
+	})).With("version", version))
+
 	var r, f, i []string
 	cmd := argp.NewCmd(&Main{}, "ace")
 	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}, RecipientFiles: argp.Append{I: &f}}, "set", "Append encrypted env vars to file")

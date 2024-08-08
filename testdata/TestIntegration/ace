@@ -1,0 +1,10 @@
+Usage: ace [options] [command] ...
+
+Options:
+  -h, --help Help
+
+Commands:
+  env       Expand to env and pass to command
+  get       Decrypt env with available identities
+  set       Append encrypted env vars to file
+  version   Command version

@@ -289,16 +289,23 @@ func TestIntegration(t *testing.T) {
 		Args  []string
 		Stdin io.Reader
 	}{
+		{[]string{"ace"}, nil},
 		{[]string{"ace", "version"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.env.invalid.ace", "A=1", "B=2"}, nil},
 		{[]string{"ace", "get", "-e=testdata/.env.invalid.ace", "-i=testdata/nonexistent_identity.txt"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.env1.ace", "-r=invalid"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=ignore", "--", "sh", "-c", "echo $A"}, nil},
 
 		{[]string{"rm", "-f", "testdata/.envi1.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-R=testdata/recipients1.txt"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
 		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-r=age10sunh5mqv3jw7audxcylw3s9redgjfhqenkuhm4v4hetg84q835qamk6x6"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
+		{[]string{"ace", "get", "-e=testdata/.envi1.ace", "-i=testdata/identity1"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.envi1.ace", "-i=testdata/identity1", "--", "sh", "-c", "echo $X"}, nil},
 
 		{[]string{"rm", "-f", "testdata/.envi3.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.envi3.ace", "-R=testdata/recipients1.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
+		{[]string{"ace", "get", "-e=testdata/.envi3.ace", "-i=testdata/identity1", "A"}, nil},
 
 		{[]string{"rm", "-f", "testdata/.envi4.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "-R=testdata/recipients2.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
@@ -313,10 +320,10 @@ func TestIntegration(t *testing.T) {
 	os.MkdirAll(coverDir, 0755)
 	for _, tt := range tests {
 		t.Run(strings.ReplaceAll(strings.Join(tt.Args, " "), "/", "_"), func(t *testing.T) {
-			t.Setenv("GOCOVERDIR", coverDir)
 			if tt.Args[0] == "ace" {
 				tt.Args[0] = os.Getenv("ACE_TESTBIN")
 			}
+			t.Setenv("GOCOVERDIR", coverDir)
 			cmd := exec.Command(tt.Args[0], tt.Args[1:]...)
 			cmd.Stdin = tt.Stdin
 			out, err := cmd.CombinedOutput()

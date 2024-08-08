@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 
@@ -29,7 +29,7 @@ func (cmd *Env) Run() error {
 			case "ignore":
 				// silence
 			case "warn", "warning":
-				log.Println("env-file not found")
+				slog.Warn("env-file not found")
 			default:
 				return err
 			}
@@ -63,7 +63,7 @@ func (cmd *Env) Run() error {
 					case "ignore":
 						return nil
 					case "warn", "warning":
-						log.Println("identity not found")
+						slog.Warn("identity not found")
 						return nil
 					default:
 						return err
@@ -93,7 +93,7 @@ func (cmd *Env) Run() error {
 			case "ignore":
 				// silence
 			case "warn", "warning":
-				log.Println(err.Error())
+				slog.Warn(err.Error())
 			default:
 				return err
 			}
