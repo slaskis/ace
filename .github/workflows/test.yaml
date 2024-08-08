@@ -15,17 +15,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-
-      - name: Test
-        run: go test -v ./...
-  cover:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-      - run: go build -cover -o ace .
-      - run: go test -race -v .
+      - run: go build -v -cover -ldflags '-s -w -X main.version=${{ github.event.release.tag_name }}' -o ace-${{ matrix.goos }}-${{ matrix.arch }} .
         env:
-          ACE_TESTBIN: ./ace
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+      - run: go test -v -race .
+        env:
+          ACE_TESTBIN: ./ace-${{ matrix.goos }}-${{ matrix.arch }}
