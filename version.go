@@ -12,7 +12,11 @@ type Version struct {
 }
 
 func (cmd *Version) Run() error {
-	_, err := fmt.Fprintln(output, cmd.version)
+	if cmd.version != "" {
+		_, err := fmt.Fprintln(output, cmd.version)
+		return err
+	}
+	_, err := fmt.Fprintln(output, getVersion())
 	return err
 }
 
