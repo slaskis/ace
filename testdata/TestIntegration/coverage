@@ -4,6 +4,6 @@ github.com/slaskis/ace/main.go:20:	*Main.Run	0.0%
 github.com/slaskis/ace/main.go:26:	readEnvFile	85.1%
 github.com/slaskis/ace/main.go:116:	main		100.0%
 github.com/slaskis/ace/set.go:24:	*Set.Run	81.2%
-github.com/slaskis/ace/version.go:14:	*Version.Run	100.0%
-github.com/slaskis/ace/version.go:19:	getVersion	87.5%
-total					(statements)	62.2%
+github.com/slaskis/ace/version.go:14:	*Version.Run	60.0%
+github.com/slaskis/ace/version.go:23:	getVersion	0.0%
+total					(statements)	53.3%

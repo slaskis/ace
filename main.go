@@ -111,10 +111,9 @@ var input io.Reader = os.Stdin
 var output io.Writer = os.Stdout
 
 // this is set using `-ldflags "-X main.version=1.2.3"`
-var version string = getVersion()
+var version string
 
 func main() {
-
 	var r, f, i []string
 	cmd := argp.NewCmd(&Main{}, "ace")
 	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}, RecipientFiles: argp.Append{I: &f}}, "set", "Append encrypted env vars to file")
