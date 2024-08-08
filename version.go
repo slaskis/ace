@@ -12,12 +12,8 @@ type Version struct {
 }
 
 func (cmd *Version) Run() error {
-	if cmd.version != "" {
-		fmt.Fprintln(output, cmd.version)
-	} else {
-		fmt.Fprintln(output, getVersion())
-	}
-	return nil
+	_, err := fmt.Fprintln(output, cmd.version)
+	return err
 }
 
 func getVersion() string {
@@ -54,6 +50,9 @@ func getVersion() string {
 		b.WriteString("unknown revision")
 	} else {
 		b.WriteString(vcs.revision[:12])
+	}
+	if !vcs.time.IsZero() {
+		b.WriteString(", " + vcs.time.Format(time.DateTime))
 	}
 	if vcs.modified {
 		b.WriteString(", dirty")

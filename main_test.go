@@ -2,9 +2,13 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/slaskis/ace/internal/test"
 	"github.com/tdewolff/argp"
@@ -274,5 +278,59 @@ func TestAce(t *testing.T) {
 			}
 			test.Snapshot(t, buf.Bytes())
 		})
+	})
+}
+
+func TestIntegration(t *testing.T) {
+	if os.Getenv("ACE_TESTBIN") == "" {
+		t.Skip("Not running integration tests")
+	}
+	tests := []struct {
+		Args  []string
+		Stdin io.Reader
+	}{
+		{[]string{"ace", "version"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.env.invalid.ace", "A=1", "B=2"}, nil},
+		{[]string{"ace", "get", "-e=testdata/.env.invalid.ace", "-i=testdata/nonexistent_identity.txt"}, nil},
+
+		{[]string{"rm", "-f", "testdata/.envi1.ace"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-R=testdata/recipients1.txt"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
+		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-r=age10sunh5mqv3jw7audxcylw3s9redgjfhqenkuhm4v4hetg84q835qamk6x6"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
+
+		{[]string{"rm", "-f", "testdata/.envi3.ace"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.envi3.ace", "-R=testdata/recipients1.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
+
+		{[]string{"rm", "-f", "testdata/.envi4.ace"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "-R=testdata/recipients2.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
+		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "A=2", "D=3"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients2.txt", "C=333 "}, nil},
+		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1"}, nil},
+		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2"}, nil},
+		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1", "-i=testdata/identity2"}, nil},
+		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2", "-i=testdata/identity1"}, nil},
+	}
+	coverDir := ".coverdata/" + strconv.FormatInt(time.Now().Unix(), 10)
+	os.MkdirAll(coverDir, 0755)
+	for _, tt := range tests {
+		t.Run(strings.ReplaceAll(strings.Join(tt.Args, " "), "/", "_"), func(t *testing.T) {
+			t.Setenv("GOCOVERDIR", coverDir)
+			if tt.Args[0] == "ace" {
+				tt.Args[0] = os.Getenv("ACE_TESTBIN")
+			}
+			cmd := exec.Command(tt.Args[0], tt.Args[1:]...)
+			cmd.Stdin = tt.Stdin
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				t.Log(err)
+			}
+			test.Snapshot(t, out)
+		})
+	}
+	t.Run("coverage", func(t *testing.T) {
+		out, err := exec.Command("go", "tool", "covdata", "func", "-i="+coverDir).CombinedOutput()
+		if err != nil {
+			t.Log(err)
+		}
+		test.Snapshot(t, out)
 	})
 }
