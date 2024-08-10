@@ -3,4 +3,4 @@ internal/prefixer/
 .env.ace
 testdata/*.ace
 .coverdata/
-ace
+/ace
