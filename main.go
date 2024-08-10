@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"encoding/base32"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -106,6 +107,54 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 	}
 
 	return newVars, nil
+}
+
+func readIdentities(idents []string, onMissing string) ([]age.Identity, error) {
+	if _, exists := os.LookupEnv("XDG_CONFIG_HOME"); !exists {
+		dir, err := os.UserConfigDir()
+		if err != nil {
+			return nil, fmt.Errorf("unable to read user config dir: %w", err)
+		}
+		os.Setenv("XDG_CONFIG_HOME", dir)
+	}
+
+	if len(idents) == 0 {
+		idents = []string{"$XDG_CONFIG_HOME/ace/identity"}
+	}
+
+	var identities []age.Identity
+	for _, id := range idents {
+		err := func() error {
+			i, err := os.Open(os.ExpandEnv(id))
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					switch onMissing {
+					case "ignore":
+						return nil
+					case "warn", "warning":
+						slog.Warn("identity not found")
+						return nil
+					default:
+						return err
+					}
+				} else {
+					return err
+				}
+			}
+			defer i.Close()
+
+			idents, err := age.ParseIdentities(i)
+			if err != nil {
+				return err
+			}
+			identities = append(identities, idents...)
+			return nil
+		}()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return identities, nil
 }
 
 // configurable for tests

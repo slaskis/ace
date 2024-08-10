@@ -296,12 +296,14 @@ func TestIntegration(t *testing.T) {
 		{[]string{"ace", "set", "-e=testdata/.env1.ace", "-r=invalid"}, nil},
 		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
 		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=ignore", "--", "sh", "-c", "echo $A"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "--", "sh", "-c", "echo $A"}, nil},
 
 		{[]string{"rm", "-f", "testdata/.envi1.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-R=testdata/recipients1.txt"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
 		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-r=age10sunh5mqv3jw7audxcylw3s9redgjfhqenkuhm4v4hetg84q835qamk6x6"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
 		{[]string{"ace", "get", "-e=testdata/.envi1.ace", "-i=testdata/identity1"}, nil},
 		{[]string{"ace", "env", "-e=testdata/.envi1.ace", "-i=testdata/identity1", "--", "sh", "-c", "echo $X"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.envi1.ace", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
 
 		{[]string{"rm", "-f", "testdata/.envi3.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.envi3.ace", "-R=testdata/recipients1.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
@@ -323,9 +325,13 @@ func TestIntegration(t *testing.T) {
 			if tt.Args[0] == "ace" {
 				tt.Args[0] = os.Getenv("ACE_TESTBIN")
 			}
-			t.Setenv("GOCOVERDIR", coverDir)
 			cmd := exec.Command(tt.Args[0], tt.Args[1:]...)
 			cmd.Stdin = tt.Stdin
+			cmd.Env = []string{
+				"GOCOVERDIR=" + coverDir,
+				"PATH=" + os.Getenv("PATH"),
+				"HOME=/tmp",
+			}
 			out, err := cmd.CombinedOutput()
 			if err != nil {
 				t.Log(err)
