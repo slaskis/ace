@@ -318,13 +318,17 @@ func TestIntegration(t *testing.T) {
 		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1", "-i=testdata/identity2"}, nil},
 		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2", "-i=testdata/identity1"}, nil},
 	}
-	coverDir := ".coverdata/" + strconv.FormatInt(time.Now().Unix(), 10)
-	os.MkdirAll(coverDir, 0755)
+	coverDir := os.Getenv("GOCOVERDIR")
+	if coverDir == "" {
+		coverDir = ".coverdata/" + strconv.FormatInt(time.Now().Unix(), 10)
+		_ = os.MkdirAll(coverDir, 0755)
+	}
 	for _, tt := range tests {
 		t.Run(strings.ReplaceAll(strings.Join(tt.Args, " "), "/", "_"), func(t *testing.T) {
 			if tt.Args[0] == "ace" {
 				tt.Args[0] = os.Getenv("ACE_TESTBIN")
 			}
+			t.Log("integration test with coverDir:", coverDir)
 			cmd := exec.Command(tt.Args[0], tt.Args[1:]...)
 			cmd.Stdin = tt.Stdin
 			cmd.Env = []string{
