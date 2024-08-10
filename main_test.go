@@ -328,7 +328,6 @@ func TestIntegration(t *testing.T) {
 			if tt.Args[0] == "ace" {
 				tt.Args[0] = os.Getenv("ACE_TESTBIN")
 			}
-			t.Log("integration test with coverDir:", coverDir)
 			cmd := exec.Command(tt.Args[0], tt.Args[1:]...)
 			cmd.Stdin = tt.Stdin
 			cmd.Env = []string{
