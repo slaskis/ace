@@ -330,6 +330,7 @@ func TestIntegration(t *testing.T) {
 			cmd.Env = []string{
 				"GOCOVERDIR=" + coverDir,
 				"PATH=" + os.Getenv("PATH"),
+				"TZ=UTC",
 				"HOME=/tmp",
 			}
 			out, err := cmd.CombinedOutput()
