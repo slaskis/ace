@@ -112,6 +112,12 @@ func (cmd *Set) Run() error {
 		if len(pair) != 2 {
 			continue
 		}
+
+		_, err := UnescapeValue(pair[1])
+		if err != nil {
+			return err
+		}
+
 		nonce := make([]byte, aead.NonceSize(), aead.NonceSize()+len(pair[1])+aead.Overhead())
 		if _, err := rand.Read(nonce); err != nil {
 			return err
