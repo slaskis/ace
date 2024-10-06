@@ -44,7 +44,7 @@ func (cmd *Env) Run() error {
 		return err
 	}
 
-	vars, err := readEnvFile(src, identities)
+	vars, err := readEnvFile(src, identities, false)
 	if err != nil {
 		if err.Error() == "no identities specified" {
 			switch cmd.OnMissing {
