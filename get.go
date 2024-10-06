@@ -26,7 +26,7 @@ func (cmd *Get) Run() error {
 		return err
 	}
 
-	vars, err := readEnvFile(src, identities)
+	vars, err := readEnvFile(src, identities, true)
 	if err != nil {
 		return err
 	}

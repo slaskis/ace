@@ -26,7 +26,7 @@ func (cmd *Main) Run() error {
 
 const ACE_PREFIX = "# ace/v1:"
 
-func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
+func readEnvFile(src io.Reader, identities []age.Identity, keepQuotes bool) ([]string, error) {
 	var keys []string
 	vals := map[string]string{}
 
@@ -103,7 +103,15 @@ func readEnvFile(src io.Reader, identities []age.Identity) ([]string, error) {
 
 	var newVars []string
 	for _, k := range keys {
-		newVars = append(newVars, k+"="+vals[k])
+		if keepQuotes {
+			newVars = append(newVars, k+"="+vals[k])
+		} else {
+			v, err := UnescapeValue(vals[k])
+			if err != nil {
+				return nil, err
+			}
+			newVars = append(newVars, k+"="+v)
+		}
 	}
 
 	return newVars, nil
@@ -155,6 +163,81 @@ func readIdentities(idents []string, onMissing string) ([]age.Identity, error) {
 		}
 	}
 	return identities, nil
+}
+
+func UnescapeValue(value string) (string,error) {
+	if len(value) == 0 {
+		return "", nil
+	}
+
+	var unescaped strings.Builder
+	var i int
+	state := "unquoted"
+
+	for i < len(value) {
+		c := value[i]
+
+		switch state {
+		case "unquoted":
+			if c == '\'' {
+				state = "singleQuoted"
+				i++
+			} else if c == '"' {
+				state = "doubleQuoted"
+				i++
+			} else if c == '\\' {
+				i++
+				if i >= len(value) {
+					return "", fmt.Errorf("unexpected end of string")
+				}
+				unescaped.WriteByte(value[i])
+				i++
+			} else {
+				unescaped.WriteByte(c)
+				i++
+			}
+		case "singleQuoted":
+			if c == '\'' {
+				state = "unquoted"
+				i++
+			} else {
+				unescaped.WriteByte(c)
+				i++
+			}
+		case "doubleQuoted":
+			if c == '"' {
+				state = "unquoted"
+				i++
+			} else if c == '\\' {
+				i++
+				if i >= len(value) {
+					return "", fmt.Errorf("unexpected end of string")
+				}
+				c2 := value[i]
+				switch c2 {
+				case '$', '`', '"', '\\', '\n':
+					unescaped.WriteByte(c2)
+				case 'n':
+					unescaped.WriteByte('\n')
+				case 't':
+					unescaped.WriteByte('\t')
+				default:
+					unescaped.WriteByte('\\')
+					unescaped.WriteByte(c2)
+				}
+				i++
+			} else {
+				unescaped.WriteByte(c)
+				i++
+			}
+		}
+	}
+
+	if state != "unquoted" {
+		return "", fmt.Errorf("unclosed quote in value")
+	}
+
+	return unescaped.String(), nil
 }
 
 // configurable for tests

@@ -1,0 +1,13 @@
+SIMPLE_QUOTE=single quoted value
+DOUBLE_QUOTE=double quoted value
+ESCAPED_QUOTE=value with "escaped" quotes
+MIXED_QUOTES='single' and double quotes
+MULTILINE=line1
+line2
+line3
+SPECIAL_CHARS=!@#$%^&*()_+-={}[]|\:;<>,.?/~`
+ESCAPED_NEWLINE=line1
+line2
+line3
+SPACE_IN_VALUE=value with spaces
+EQUALS_IN_VALUE=key=value

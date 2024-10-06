@@ -279,6 +279,57 @@ func TestAce(t *testing.T) {
 			test.Snapshot(t, buf.Bytes())
 		})
 	})
+	t.Run("quoted and escaped values", func(t *testing.T) {
+	    os.Remove("testdata/.env_quotes.ace")
+	    {
+	        cmd := &Set{
+	            EnvFile: "testdata/.env_quotes.ace",
+	            Recipients: argp.Append{I: &([]string{})},
+	            RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})},
+	            EnvPairs: []string{
+	                "SIMPLE_QUOTE='single quoted value'",
+	                "DOUBLE_QUOTE=\"double quoted value\"",
+	                "ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
+	                "MIXED_QUOTES=\"'single' and \"double\" quotes\"",
+	                "MULTILINE=\"line1\nline2\nline3\"",
+	                "SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
+	                "ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
+	                "SPACE_IN_VALUE=value with spaces",
+	                "EQUALS_IN_VALUE=\"key=value\"",
+	            },
+	        }
+	        err := cmd.Run()
+	        if err != nil {
+	            t.Fatal(err)
+	        }
+	    }
+
+		t.Run("get", func(t *testing.T) {
+	        buf := &bytes.Buffer{}
+	        output = buf
+	        cmd := &Get{EnvFile: "testdata/.env_quotes.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}}
+	        err := cmd.Run()
+	        if err != nil {
+	            t.Fatal(err)
+	        }
+	        test.Snapshot(t, buf.Bytes())
+	    })
+
+		t.Run("env", func(t *testing.T) {
+	        buf := &bytes.Buffer{}
+	        output = buf
+	        cmd := &Env{
+	            EnvFile: "testdata/.env_quotes.ace",
+	            Identities: argp.Append{I: &([]string{"testdata/identity1"})},
+	            Command: []string{"sh", "-c", `echo SIMPLE_QUOTE="$SIMPLE_QUOTE"; echo DOUBLE_QUOTE="$DOUBLE_QUOTE"; echo ESCAPED_QUOTE="$ESCAPED_QUOTE"; echo MIXED_QUOTES="$MIXED_QUOTES"; echo MULTILINE="$MULTILINE"; echo SPECIAL_CHARS="$SPECIAL_CHARS"; echo ESCAPED_NEWLINE="$ESCAPED_NEWLINE"; echo SPACE_IN_VALUE="$SPACE_IN_VALUE"; echo EQUALS_IN_VALUE="$EQUALS_IN_VALUE"`},
+	        }
+	        err := cmd.Run()
+	        if err != nil {
+	            t.Fatal(err)
+	        }
+	        test.Snapshot(t, buf.Bytes())
+	    })
+	})
 }
 
 func TestIntegration(t *testing.T) {
@@ -317,6 +368,22 @@ func TestIntegration(t *testing.T) {
 		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2"}, nil},
 		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1", "-i=testdata/identity2"}, nil},
 		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2", "-i=testdata/identity1"}, nil},
+
+		{[]string{"rm", "-f", "testdata/.env_quotes.ace"}, nil},
+		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
+		    "SIMPLE_QUOTE='single quoted value'",
+		    "DOUBLE_QUOTE=\"double quoted value\"",
+		    "ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
+		    "MIXED_QUOTES=\"'single' and \"double\" quotes\"",
+		    "MULTILINE=\"line1\nline2\nline3\"",
+		    "SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
+		    "ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
+		    "SPACE_IN_VALUE=value with spaces",
+		    "EQUALS_IN_VALUE=\"key=value\"",
+		}, nil},
+		{[]string{"ace", "get", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--",
+		    "sh", "-c", "echo $SIMPLE_QUOTE; echo $DOUBLE_QUOTE; echo $ESCAPED_QUOTE; echo $MIXED_QUOTES; echo $MULTILINE; echo $SPECIAL_CHARS; echo $ESCAPED_NEWLINE; echo $SPACE_IN_VALUE; echo $EQUALS_IN_VALUE"}, nil},
 	}
 	coverDir := os.Getenv("GOCOVERDIR")
 	if coverDir == "" {

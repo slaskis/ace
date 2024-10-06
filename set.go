@@ -96,6 +96,7 @@ func (cmd *Set) Run() error {
 		s := bufio.NewScanner(input)
 		for s.Scan() {
 			line := strings.TrimSpace(s.Text())
+
 			if strings.HasPrefix(line, "#") {
 				continue
 			}
