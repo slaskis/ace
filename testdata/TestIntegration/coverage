@@ -1,10 +1,11 @@
 github.com/slaskis/ace/env.go:20:	*Env.Run	80.8%
 github.com/slaskis/ace/get.go:17:	*Get.Run	90.5%
 github.com/slaskis/ace/main.go:23:	*Main.Run	100.0%
-github.com/slaskis/ace/main.go:29:	readEnvFile	87.2%
-github.com/slaskis/ace/main.go:112:	readIdentities	78.6%
-github.com/slaskis/ace/main.go:167:	main		100.0%
-github.com/slaskis/ace/set.go:24:	*Set.Run	82.6%
+github.com/slaskis/ace/main.go:29:	readEnvFile	86.5%
+github.com/slaskis/ace/main.go:120:	readIdentities	78.6%
+github.com/slaskis/ace/main.go:168:	UnescapeValue	80.9%
+github.com/slaskis/ace/main.go:250:	main		100.0%
+github.com/slaskis/ace/set.go:24:	*Set.Run	81.9%
 github.com/slaskis/ace/version.go:14:	*Version.Run	60.0%
 github.com/slaskis/ace/version.go:23:	getVersion	0.0%
-total					(statements)	75.4%
+total					(statements)	76.3%

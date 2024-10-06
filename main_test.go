@@ -375,6 +375,8 @@ func TestIntegration(t *testing.T) {
 		    "DOUBLE_QUOTE=\"double quoted value\"",
 		    "ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
 		    "MIXED_QUOTES=\"'single' and \"double\" quotes\"",
+		}, nil},
+		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
 		    "MULTILINE=\"line1\nline2\nline3\"",
 		    "SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
 		    "ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
@@ -382,8 +384,10 @@ func TestIntegration(t *testing.T) {
 		    "EQUALS_IN_VALUE=\"key=value\"",
 		}, nil},
 		{[]string{"ace", "get", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--",
-		    "sh", "-c", "echo $SIMPLE_QUOTE; echo $DOUBLE_QUOTE; echo $ESCAPED_QUOTE; echo $MIXED_QUOTES; echo $MULTILINE; echo $SPECIAL_CHARS; echo $ESCAPED_NEWLINE; echo $SPACE_IN_VALUE; echo $EQUALS_IN_VALUE"}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SIMPLE_QUOTE"; echo "$DOUBLE_QUOTE"`}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$ESCAPED_QUOTE"; echo "$MIXED_QUOTES"; echo "$MULTILINE"`}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPECIAL_CHARS"; echo "$ESCAPED_NEWLINE"`}, nil},
+		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPACE_IN_VALUE"; echo "$EQUALS_IN_VALUE"`}, nil},
 	}
 	coverDir := os.Getenv("GOCOVERDIR")
 	if coverDir == "" {
