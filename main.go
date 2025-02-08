@@ -14,14 +14,15 @@ import (
 	"time"
 
 	"filippo.io/age"
-	"github.com/tdewolff/argp"
+	arg "github.com/alexflint/go-arg"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-type Main struct{}
-
-func (cmd *Main) Run() error {
-	return argp.ShowUsage
+type Main struct {
+	Set     *Set     `arg:"subcommand:set" help:"Append encrypted env vars to file"`
+	Get     *Get     `arg:"subcommand:get" help:"Decrypt env with available identities"`
+	Env     *Env     `arg:"subcommand:env" help:"Expand to env and pass to command"`
+	Version *Version `arg:"subcommand:version"`
 }
 
 const ACE_PREFIX = "# ace/v1:"
@@ -165,7 +166,7 @@ func readIdentities(idents []string, onMissing string) ([]age.Identity, error) {
 	return identities, nil
 }
 
-func UnescapeValue(value string) (string,error) {
+func UnescapeValue(value string) (string, error) {
 	if len(value) == 0 {
 		return "", nil
 	}
@@ -257,11 +258,26 @@ func main() {
 		},
 	})).With("version", version))
 
-	var r, f, i []string
-	cmd := argp.NewCmd(&Main{}, "ace")
-	cmd.AddCmd(&Set{Recipients: argp.Append{I: &r}, RecipientFiles: argp.Append{I: &f}}, "set", "Append encrypted env vars to file")
-	cmd.AddCmd(&Get{Identities: argp.Append{I: &i}}, "get", "Decrypt env with available identities")
-	cmd.AddCmd(&Env{Identities: argp.Append{I: &i}}, "env", "Expand to env and pass to command")
-	cmd.AddCmd(&Version{version: version}, "version", "Command version")
-	cmd.Parse()
+	var args Main
+	p := arg.MustParse(&args)
+
+	err := func() error {
+		switch {
+		case args.Env != nil:
+			return args.Env.Run()
+		case args.Get != nil:
+			return args.Get.Run()
+		case args.Set != nil:
+			return args.Set.Run()
+		case args.Version != nil:
+			args.Version.version = version
+			return args.Version.Run()
+		default:
+			p.WriteHelp(os.Stderr)
+			return nil
+		}
+	}()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "ERROR: "+err.Error())
+	}
 }

@@ -11,19 +11,18 @@ import (
 	"time"
 
 	"github.com/slaskis/ace/internal/test"
-	"github.com/tdewolff/argp"
 )
 
 func TestAce(t *testing.T) {
 	t.Run("set with missing default recipient file path", func(t *testing.T) {
-		cmd := &Set{EnvFile: "testdata/.env.invalid.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{})}, EnvPairs: []string{"A=1", "B=2"}}
+		cmd := &Set{EnvFile: "testdata/.env.invalid.ace", RecipientFiles: []string{}, EnvPairs: []string{"A=1", "B=2"}}
 		err := cmd.Run()
 		if err == nil {
 			t.Fatal("expected an error due to missing recipients file, but none occurred")
 		}
 	})
 	t.Run("get with invalid identity file path", func(t *testing.T) {
-		cmd := &Get{EnvFile: "testdata/.env.invalid.ace", Identities: argp.Append{I: &([]string{"testdata/nonexistent_identity.txt"})}}
+		cmd := &Get{EnvFile: "testdata/.env.invalid.ace", Identities: []string{"testdata/nonexistent_identity.txt"}}
 		err := cmd.Run()
 		if err == nil {
 			t.Fatal("expected an error due to missing identity file, but none occurred")
@@ -32,7 +31,7 @@ func TestAce(t *testing.T) {
 	t.Run("single recipient", func(t *testing.T) {
 		os.Remove("testdata/.env1.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 ", "D ignored"}}
+			cmd := &Set{EnvFile: "testdata/.env1.ace", RecipientFiles: []string{"testdata/recipients1.txt"}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 ", "D ignored"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -41,7 +40,7 @@ func TestAce(t *testing.T) {
 
 		{
 			input = strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")
-			cmd := &Set{EnvFile: "testdata/.env1.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}}
+			cmd := &Set{EnvFile: "testdata/.env1.ace", RecipientFiles: []string{"testdata/recipients1.txt"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -50,7 +49,7 @@ func TestAce(t *testing.T) {
 		{
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env1.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}}
+			cmd := &Get{EnvFile: "testdata/.env1.ace", Identities: []string{"testdata/identity1"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -62,21 +61,21 @@ func TestAce(t *testing.T) {
 	t.Run("multiple recipients", func(t *testing.T) {
 		os.Remove("testdata/.env2.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients12.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", RecipientFiles: []string{"testdata/recipients12.txt"}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", RecipientFiles: []string{"testdata/recipients1.txt"}, EnvPairs: []string{"A=2", "D=3"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env2.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients13.txt"})}, EnvPairs: []string{"E=5"}}
+			cmd := &Set{EnvFile: "testdata/.env2.ace", RecipientFiles: []string{"testdata/recipients13.txt"}, EnvPairs: []string{"E=5"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -85,7 +84,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}}
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: []string{"testdata/identity1"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -95,7 +94,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}}
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: []string{"testdata/identity2"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -105,7 +104,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity3", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: argp.Append{I: &([]string{"testdata/identity3"})}}
+			cmd := &Get{EnvFile: "testdata/.env2.ace", Identities: []string{"testdata/identity3"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -117,7 +116,7 @@ func TestAce(t *testing.T) {
 	t.Run("env", func(t *testing.T) {
 		os.Remove("testdata/.env3.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env3.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env3.ace", RecipientFiles: []string{"testdata/recipients1.txt"}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -127,7 +126,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: []string{"testdata/identity1"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -137,7 +136,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: []string{"testdata/identity2"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -147,7 +146,7 @@ func TestAce(t *testing.T) {
 		t.Run("env-file on-missing=error", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Env{EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{EnvFile: "testdata/.env.not-found.ace", Identities: []string{"testdata/identity2"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err == nil {
 				t.Fatal("expected not such file or directory")
@@ -159,7 +158,7 @@ func TestAce(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
 			t.Setenv("A", "woop")
-			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env.not-found.ace", Identities: []string{"testdata/identity2"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -171,7 +170,7 @@ func TestAce(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
 			t.Setenv("A", "woop")
-			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env.not-found.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env.not-found.ace", Identities: []string{"testdata/identity2"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -182,7 +181,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity on-missing=error", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{EnvFile: "testdata/.env3.ace", Identities: []string{"testdata/identitynot-found"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err == nil {
 				t.Fatal("expected not such file or directory")
@@ -194,7 +193,7 @@ func TestAce(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
 			t.Setenv("A", "woop")
-			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{OnMissing: "warn", EnvFile: "testdata/.env3.ace", Identities: []string{"testdata/identitynot-found"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -206,7 +205,7 @@ func TestAce(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
 			t.Setenv("A", "woop")
-			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env3.ace", Identities: argp.Append{I: &([]string{"testdata/identitynot-found"})}, Command: []string{"sh", "-c", "echo $A $B $C"}}
+			cmd := &Env{OnMissing: "ignore", EnvFile: "testdata/.env3.ace", Identities: []string{"testdata/identitynot-found"}, Command: []string{"sh", "-c", "echo $A $B $C"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -218,21 +217,21 @@ func TestAce(t *testing.T) {
 	t.Run("multiple recipients repeated flags", func(t *testing.T) {
 		os.Remove("testdata/.env4.ace")
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt", "testdata/recipients2.txt"})}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", RecipientFiles: []string{"testdata/recipients1.txt", "testdata/recipients2.txt"}, EnvPairs: []string{"A=1", "B=2", "C=1 2 3 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})}, EnvPairs: []string{"A=2", "D=3"}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", RecipientFiles: []string{"testdata/recipients1.txt"}, EnvPairs: []string{"A=2", "D=3"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 		{
-			cmd := &Set{EnvFile: "testdata/.env4.ace", Recipients: argp.Append{I: &([]string{})}, RecipientFiles: argp.Append{I: &([]string{"testdata/recipients2.txt"})}, EnvPairs: []string{"C=333 "}}
+			cmd := &Set{EnvFile: "testdata/.env4.ace", RecipientFiles: []string{"testdata/recipients2.txt"}, EnvPairs: []string{"C=333 "}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -241,7 +240,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}}
+			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: []string{"testdata/identity1"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -251,7 +250,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: argp.Append{I: &([]string{"testdata/identity2"})}}
+			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: []string{"testdata/identity2"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -261,7 +260,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity1,identity2", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: argp.Append{I: &([]string{"testdata/identity1", "testdata/identity2"})}}
+			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: []string{"testdata/identity1", "testdata/identity2"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -271,7 +270,7 @@ func TestAce(t *testing.T) {
 		t.Run("identity2,identity1", func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			output = buf
-			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: argp.Append{I: &([]string{"testdata/identity2", "testdata/identity1"})}}
+			cmd := &Get{EnvFile: "testdata/.env4.ace", Identities: []string{"testdata/identity2", "testdata/identity1"}}
 			err := cmd.Run()
 			if err != nil {
 				t.Fatal(err)
@@ -280,55 +279,55 @@ func TestAce(t *testing.T) {
 		})
 	})
 	t.Run("quoted and escaped values", func(t *testing.T) {
-	    os.Remove("testdata/.env_quotes.ace")
-	    {
-	        cmd := &Set{
-	            EnvFile: "testdata/.env_quotes.ace",
-	            Recipients: argp.Append{I: &([]string{})},
-	            RecipientFiles: argp.Append{I: &([]string{"testdata/recipients1.txt"})},
-	            EnvPairs: []string{
-	                "SIMPLE_QUOTE='single quoted value'",
-	                "DOUBLE_QUOTE=\"double quoted value\"",
-	                "ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
-	                "MIXED_QUOTES=\"'single' and \"double\" quotes\"",
-	                "MULTILINE=\"line1\nline2\nline3\"",
-	                "SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
-	                "ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
-	                "SPACE_IN_VALUE=value with spaces",
-	                "EQUALS_IN_VALUE=\"key=value\"",
-	            },
-	        }
-	        err := cmd.Run()
-	        if err != nil {
-	            t.Fatal(err)
-	        }
-	    }
+		os.Remove("testdata/.env_quotes.ace")
+		{
+			cmd := &Set{
+				EnvFile:        "testdata/.env_quotes.ace",
+				Recipients:     []string{},
+				RecipientFiles: []string{"testdata/recipients1.txt"},
+				EnvPairs: []string{
+					"SIMPLE_QUOTE='single quoted value'",
+					"DOUBLE_QUOTE=\"double quoted value\"",
+					"ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
+					"MIXED_QUOTES=\"'single' and \"double\" quotes\"",
+					"MULTILINE=\"line1\nline2\nline3\"",
+					"SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
+					"ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
+					"SPACE_IN_VALUE=value with spaces",
+					"EQUALS_IN_VALUE=\"key=value\"",
+				},
+			}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
 
 		t.Run("get", func(t *testing.T) {
-	        buf := &bytes.Buffer{}
-	        output = buf
-	        cmd := &Get{EnvFile: "testdata/.env_quotes.ace", Identities: argp.Append{I: &([]string{"testdata/identity1"})}}
-	        err := cmd.Run()
-	        if err != nil {
-	            t.Fatal(err)
-	        }
-	        test.Snapshot(t, buf.Bytes())
-	    })
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Get{EnvFile: "testdata/.env_quotes.ace", Identities: []string{"testdata/identity1"}}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
 
 		t.Run("env", func(t *testing.T) {
-	        buf := &bytes.Buffer{}
-	        output = buf
-	        cmd := &Env{
-	            EnvFile: "testdata/.env_quotes.ace",
-	            Identities: argp.Append{I: &([]string{"testdata/identity1"})},
-	            Command: []string{"sh", "-c", `echo SIMPLE_QUOTE="$SIMPLE_QUOTE"; echo DOUBLE_QUOTE="$DOUBLE_QUOTE"; echo ESCAPED_QUOTE="$ESCAPED_QUOTE"; echo MIXED_QUOTES="$MIXED_QUOTES"; echo MULTILINE="$MULTILINE"; echo SPECIAL_CHARS="$SPECIAL_CHARS"; echo ESCAPED_NEWLINE="$ESCAPED_NEWLINE"; echo SPACE_IN_VALUE="$SPACE_IN_VALUE"; echo EQUALS_IN_VALUE="$EQUALS_IN_VALUE"`},
-	        }
-	        err := cmd.Run()
-	        if err != nil {
-	            t.Fatal(err)
-	        }
-	        test.Snapshot(t, buf.Bytes())
-	    })
+			buf := &bytes.Buffer{}
+			output = buf
+			cmd := &Env{
+				EnvFile:    "testdata/.env_quotes.ace",
+				Identities: []string{"testdata/identity1"},
+				Command:    []string{"sh", "-c", `echo SIMPLE_QUOTE="$SIMPLE_QUOTE"; echo DOUBLE_QUOTE="$DOUBLE_QUOTE"; echo ESCAPED_QUOTE="$ESCAPED_QUOTE"; echo MIXED_QUOTES="$MIXED_QUOTES"; echo MULTILINE="$MULTILINE"; echo SPECIAL_CHARS="$SPECIAL_CHARS"; echo ESCAPED_NEWLINE="$ESCAPED_NEWLINE"; echo SPACE_IN_VALUE="$SPACE_IN_VALUE"; echo EQUALS_IN_VALUE="$EQUALS_IN_VALUE"`},
+			}
+			err := cmd.Run()
+			if err != nil {
+				t.Fatal(err)
+			}
+			test.Snapshot(t, buf.Bytes())
+		})
 	})
 }
 
@@ -371,17 +370,17 @@ func TestIntegration(t *testing.T) {
 
 		{[]string{"rm", "-f", "testdata/.env_quotes.ace"}, nil},
 		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
-		    "SIMPLE_QUOTE='single quoted value'",
-		    "DOUBLE_QUOTE=\"double quoted value\"",
-		    "ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
-		    "MIXED_QUOTES=\"'single' and \"double\" quotes\"",
+			"SIMPLE_QUOTE='single quoted value'",
+			"DOUBLE_QUOTE=\"double quoted value\"",
+			"ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
+			"MIXED_QUOTES=\"'single' and \"double\" quotes\"",
 		}, nil},
 		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
-		    "MULTILINE=\"line1\nline2\nline3\"",
-		    "SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
-		    "ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
-		    "SPACE_IN_VALUE=value with spaces",
-		    "EQUALS_IN_VALUE=\"key=value\"",
+			"MULTILINE=\"line1\nline2\nline3\"",
+			"SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
+			"ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
+			"SPACE_IN_VALUE=value with spaces",
+			"EQUALS_IN_VALUE=\"key=value\"",
 		}, nil},
 		{[]string{"ace", "get", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1"}, nil},
 		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SIMPLE_QUOTE"; echo "$DOUBLE_QUOTE"`}, nil},

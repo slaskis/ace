@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/tdewolff/argp"
 )
 
 type Get struct {
-	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
-	Identities argp.Append `name:"identity" short:"i" desc:"Defaults to $XDG_CONFIG_HOME/ace/identity"`
-	Keys       []string    `name:"keys" index:"*"`
+	EnvFile    string   `arg:"--env-file,-e" default:"./.env.ace"`
+	Identities []string `arg:"--identity,-i,separate" help:"Decrypt using the specified IDENTITY. Can be repeated. Defaults to $XDG_CONFIG_HOME/ace/identity"`
+	Keys       []string `arg:"positional"`
 }
 
 func (cmd *Get) Run() error {
@@ -21,7 +19,7 @@ func (cmd *Get) Run() error {
 	}
 	defer src.Close()
 
-	identities, err := readIdentities(*cmd.Identities.I.(*[]string), "error")
+	identities, err := readIdentities(cmd.Identities, "error")
 	if err != nil {
 		return err
 	}
