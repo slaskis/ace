@@ -1,10 +1,10 @@
-Usage: ace [options] [command] ...
+Usage: ace <command> [<args>]
 
 Options:
-  -h, --help Help
+  --help, -h             display this help and exit
 
 Commands:
-  env       Expand to env and pass to command
-  get       Decrypt env with available identities
-  set       Append encrypted env vars to file
-  version   Command version
+  set                    Append encrypted env vars to file
+  get                    Decrypt env with available identities
+  env                    Expand to env and pass to command
+  version

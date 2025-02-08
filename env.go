@@ -6,15 +6,13 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
-
-	"github.com/tdewolff/argp"
 )
 
 type Env struct {
-	OnMissing  string      `name:"on-missing" default:"error" desc:"How to handle when env-file or identity is missing, can be 'ignore', 'warn' or 'error'"`
-	EnvFile    string      `name:"env-file" short:"e" default:"./.env.ace"`
-	Identities argp.Append `name:"identity" short:"i" desc:"Defaults to $XDG_CONFIG_HOME/ace/identity"`
-	Command    []string    `index:"*"`
+	OnMissing  string   `arg:"--on-missing" default:"error" help:"How to handle when env-file or identity is missing, can be 'ignore', 'warn' or 'error'"`
+	EnvFile    string   `arg:"--env-file,-e" default:"./.env.ace"`
+	Identities []string `arg:"--identity,-i,separate" help:"Decrypt using the specified IDENTITY. Can be repeated. Defaults to $XDG_CONFIG_HOME/ace/identity"`
+	Command    []string `arg:"positional,required"`
 }
 
 func (cmd *Env) Run() error {
@@ -39,7 +37,7 @@ func (cmd *Env) Run() error {
 		defer src.Close()
 	}
 
-	identities, err := readIdentities(*cmd.Identities.I.(*[]string), cmd.OnMissing)
+	identities, err := readIdentities(cmd.Identities, cmd.OnMissing)
 	if err != nil {
 		return err
 	}

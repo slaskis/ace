@@ -10,20 +10,19 @@ import (
 	"strings"
 
 	"filippo.io/age"
-	"github.com/tdewolff/argp"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 type Set struct {
-	RecipientFiles argp.Append `name:"recipient-file" short:"R" desc:"Encrypt to recipients listed at PATH. Can be repeated. Defaults to ./recipients.txt"`
-	Recipients     argp.Append `name:"recipient" short:"r" desc:"Encrypt to the specified RECIPIENT. Can be repeated."`
-	EnvFile        string      `name:"env-file" short:"e" default:"./.env.ace"`
-	EnvPairs       []string    `name:"env" index:"*"`
+	RecipientFiles []string `arg:"--recipient-file,-R,separate" help:"Encrypt to recipients listed at RECIPIENT-FILE. Can be repeated. Defaults to ./recipients.txt"`
+	Recipients     []string `arg:"--recipient,-r,separate" help:"Encrypt to the specified RECIPIENT. Can be repeated."`
+	EnvFile        string   `arg:"--env-file,-e" default:"./.env.ace"`
+	EnvPairs       []string `arg:"positional"`
 }
 
 func (cmd *Set) Run() error {
-	recs := *cmd.Recipients.I.(*[]string)
-	files := *cmd.RecipientFiles.I.(*[]string)
+	recs := cmd.Recipients
+	files := cmd.RecipientFiles
 	if len(files) == 0 {
 		files = []string{"./recipients.txt"}
 	}
