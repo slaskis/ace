@@ -19,9 +19,9 @@ import (
 )
 
 type Main struct {
-	Set     *Set     `arg:"subcommand:set" help:"Append encrypted env vars to file"`
-	Get     *Get     `arg:"subcommand:get" help:"Decrypt env with available identities"`
 	Env     *Env     `arg:"subcommand:env" help:"Expand to env and pass to command"`
+	Get     *Get     `arg:"subcommand:get" help:"Decrypt env with available identities"`
+	Set     *Set     `arg:"subcommand:set" help:"Append encrypted env vars to file"`
 	Version *Version `arg:"subcommand:version"`
 }
 
