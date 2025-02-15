@@ -7,6 +7,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed for uploading release assets
+      id-token: write # needed for keyless signing with cosign
     strategy:
       matrix:
         goos: [linux, windows, darwin]
@@ -18,6 +21,9 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
       - name: Test
         run: go test -v ./...
 
@@ -28,7 +34,13 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           CGO_ENABLED: 0
 
-      - name: Upload
+      - name: Sign Binary
+        run: |
+          cosign sign-blob --yes ace-${{ matrix.goos }}-${{ matrix.arch }} \
+            --output-signature ace-${{ matrix.goos }}-${{ matrix.arch }}.sig \
+            --output-certificate ace-${{ matrix.goos }}-${{ matrix.arch }}.pem
+
+      - name: Upload Binary
         uses: actions/github-script@v7
         with:
           script: |
@@ -39,4 +51,30 @@ jobs:
               release_id: context.payload.release.id,
               name: "ace-${{ matrix.goos }}-${{ matrix.arch }}",
               data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}")
+            })
+
+      - name: Upload Signature
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}.sig",
+              data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}.sig")
+            })
+
+      - name: Upload Certificate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              name: "ace-${{ matrix.goos }}-${{ matrix.arch }}.pem",
+              data: fs.readFileSync("ace-${{ matrix.goos }}-${{ matrix.arch }}.pem")
             })
