@@ -1,6 +1,6 @@
 module github.com/slaskis/ace
 
-go 1.22.6
+go 1.24.0
 
 require (
 	filippo.io/age v1.2.1
