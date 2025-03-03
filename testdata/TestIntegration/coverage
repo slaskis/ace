@@ -1,9 +1,9 @@
 github.com/middle-management/ace/env.go:22:			*Env.Run		80.0%
 github.com/middle-management/ace/get.go:15:			*Get.Run		90.5%
-github.com/middle-management/ace/main.go:30:			readEnvFile		86.5%
-github.com/middle-management/ace/main.go:121:			readIdentities		78.6%
-github.com/middle-management/ace/main.go:169:			UnescapeValue		80.9%
-github.com/middle-management/ace/main.go:251:			main			100.0%
+github.com/middle-management/ace/main.go:31:			readEnvFile		86.5%
+github.com/middle-management/ace/main.go:122:			readIdentities		78.6%
+github.com/middle-management/ace/main.go:170:			UnescapeValue		80.8%
+github.com/middle-management/ace/main.go:260:			main			100.0%
 github.com/middle-management/ace/set.go:23:			*Set.Run		81.9%
 github.com/middle-management/ace/version.go:14:			*Version.Run		60.0%
 github.com/middle-management/ace/version.go:23:			getVersion		0.0%
