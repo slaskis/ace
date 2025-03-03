@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/slaskis/ace/internal/test"
+	"github.com/middle-management/ace/internal/test"
 )
 
 func TestAce(t *testing.T) {

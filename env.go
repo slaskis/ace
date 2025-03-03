@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/slaskis/ace/internal/proc"
+	"github.com/middle-management/ace/internal/proc"
 )
 
 type Env struct {
