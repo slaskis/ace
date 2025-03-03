@@ -83,14 +83,5 @@ func (cmd *Env) Run() error {
 		}
 	}()
 
-	err = c.Run()
-	if err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			os.Exit(exitErr.ExitCode())
-		}
-		return err
-	}
-
-	return nil
+	return c.Run()
 }

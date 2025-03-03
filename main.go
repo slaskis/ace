@@ -279,5 +279,14 @@ func main() {
 	}()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ERROR: "+err.Error())
+
+		var exitErr interface {
+			ExitCode() int
+		}
+		if errors.As(err, &exitErr) {
+			os.Exit(exitErr.ExitCode())
+		} else {
+			os.Exit(1)
+		}
 	}
 }
