@@ -1,4 +1,4 @@
-module github.com/slaskis/ace
+module github.com/middle-management/ace
 
 go 1.24.0
 
