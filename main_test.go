@@ -336,57 +336,62 @@ func TestIntegration(t *testing.T) {
 		t.Skip("Not running integration tests")
 	}
 	tests := []struct {
-		Args  []string
-		Stdin io.Reader
+		ExpectedExitCode int
+		Args             []string
+		Stdin            io.Reader
 	}{
-		{[]string{"ace"}, nil},
-		{[]string{"ace", "version"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.env.invalid.ace", "A=1", "B=2"}, nil},
-		{[]string{"ace", "get", "-e=testdata/.env.invalid.ace", "-i=testdata/nonexistent_identity.txt"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.env1.ace", "-r=invalid"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=ignore", "--", "sh", "-c", "echo $A"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env.invalid.ace", "--", "sh", "-c", "echo $A"}, nil},
+		{0, []string{"ace"}, nil},
+		{0, []string{"ace", "version"}, nil},
+		{1, []string{"ace", "set", "-e=testdata/.env.invalid.ace", "A=1", "B=2"}, nil},
+		{1, []string{"ace", "get", "-e=testdata/.env.invalid.ace", "-i=testdata/nonexistent_identity.txt"}, nil},
+		{1, []string{"ace", "set", "-e=testdata/.env1.ace", "-r=invalid"}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env.invalid.ace", "-i=testdata/identity1", "--on-missing=ignore", "--", "sh", "-c", "echo $A"}, nil},
+		{1, []string{"ace", "env", "-e=testdata/.env.invalid.ace", "--", "sh", "-c", "echo $A"}, nil},
 
-		{[]string{"rm", "-f", "testdata/.envi1.ace"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-R=testdata/recipients1.txt"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
-		{[]string{"ace", "set", "-e=testdata/.envi1.ace", "-r=age10sunh5mqv3jw7audxcylw3s9redgjfhqenkuhm4v4hetg84q835qamk6x6"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
-		{[]string{"ace", "get", "-e=testdata/.envi1.ace", "-i=testdata/identity1"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.envi1.ace", "-i=testdata/identity1", "--", "sh", "-c", "echo $X"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.envi1.ace", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
+		{0, []string{"rm", "-f", "testdata/.envi1.ace"}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.envi1.ace", "-R=testdata/recipients1.txt"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
+		{1, []string{"ace", "set", "-e=testdata/.envi1.ace", "-r=age10sunh5mqv3jw7audxcylw3s9redgjfhqenkuhm4v4hetg84q835qamk6x6"}, strings.NewReader("X=1\nY=2\nZ=3\n# comment\ninvalid line")},
+		{0, []string{"ace", "get", "-e=testdata/.envi1.ace", "-i=testdata/identity1"}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.envi1.ace", "-i=testdata/identity1", "--", "sh", "-c", "echo $X"}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.envi1.ace", "--on-missing=warn", "--", "sh", "-c", "echo $A"}, nil},
 
-		{[]string{"rm", "-f", "testdata/.envi3.ace"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.envi3.ace", "-R=testdata/recipients1.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
-		{[]string{"ace", "get", "-e=testdata/.envi3.ace", "-i=testdata/identity1", "A"}, nil},
+		{0, []string{"rm", "-f", "testdata/.envi3.ace"}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.envi3.ace", "-R=testdata/recipients1.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.envi3.ace", "-i=testdata/identity1", "A"}, nil},
 
-		{[]string{"rm", "-f", "testdata/.envi4.ace"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "-R=testdata/recipients2.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
-		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "A=2", "D=3"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients2.txt", "C=333 "}, nil},
-		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1"}, nil},
-		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2"}, nil},
-		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1", "-i=testdata/identity2"}, nil},
-		{[]string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2", "-i=testdata/identity1"}, nil},
+		{0, []string{"rm", "-f", "testdata/.envi4.ace"}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "-R=testdata/recipients2.txt", "A=1", "B=2", "C=1 2 3 "}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients1.txt", "A=2", "D=3"}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.envi4.ace", "-R=testdata/recipients2.txt", "C=333 "}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1"}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2"}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity1", "-i=testdata/identity2"}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.envi4.ace", "-i=testdata/identity2", "-i=testdata/identity1"}, nil},
 
-		{[]string{"rm", "-f", "testdata/.env_quotes.ace"}, nil},
-		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
+		{0, []string{"rm", "-f", "testdata/.env_quotes.ace"}, nil},
+		{0, []string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
 			"SIMPLE_QUOTE='single quoted value'",
 			"DOUBLE_QUOTE=\"double quoted value\"",
 			"ESCAPED_QUOTE=\"value with \\\"escaped\\\" quotes\"",
 			"MIXED_QUOTES=\"'single' and \"double\" quotes\"",
 		}, nil},
-		{[]string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
+		{0, []string{"ace", "set", "-e=testdata/.env_quotes.ace", "-R=testdata/recipients1.txt",
 			"MULTILINE=\"line1\nline2\nline3\"",
 			"SPECIAL_CHARS=\"!@#$%^&*()_+-={}[]|\\:;<>,.?/~`\"",
 			"ESCAPED_NEWLINE=\"line1\\nline2\\nline3\"",
 			"SPACE_IN_VALUE=value with spaces",
 			"EQUALS_IN_VALUE=\"key=value\"",
 		}, nil},
-		{[]string{"ace", "get", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1"}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SIMPLE_QUOTE"; echo "$DOUBLE_QUOTE"`}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$ESCAPED_QUOTE"; echo "$MIXED_QUOTES"; echo "$MULTILINE"`}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPECIAL_CHARS"; echo "$ESCAPED_NEWLINE"`}, nil},
-		{[]string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPACE_IN_VALUE"; echo "$EQUALS_IN_VALUE"`}, nil},
+		{0, []string{"ace", "get", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1"}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SIMPLE_QUOTE"; echo "$DOUBLE_QUOTE"`}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$ESCAPED_QUOTE"; echo "$MIXED_QUOTES"; echo "$MULTILINE"`}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPECIAL_CHARS"; echo "$ESCAPED_NEWLINE"`}, nil},
+		{0, []string{"ace", "env", "-e=testdata/.env_quotes.ace", "-i=testdata/identity1", "--", "sh", "-c", `echo "$SPACE_IN_VALUE"; echo "$EQUALS_IN_VALUE"`}, nil},
+
+		{0, []string{"ace", "env", "-e=testdata/.env1.ace", "-i=testdata/identity1", "--", "sh", "-c", "exit 0"}, nil},
+		{1, []string{"ace", "env", "-e=testdata/.env1.ace", "-i=testdata/identity1", "--", "sh", "-c", "exit 1"}, nil},
+		{42, []string{"ace", "env", "-e=testdata/.env1.ace", "-i=testdata/identity1", "--", "sh", "-c", "exit 42"}, nil},
 	}
 	coverDir := os.Getenv("GOCOVERDIR")
 	if coverDir == "" {
@@ -409,6 +414,9 @@ func TestIntegration(t *testing.T) {
 			out, err := cmd.CombinedOutput()
 			if err != nil {
 				t.Log(err)
+			}
+			if cmd.ProcessState != nil && cmd.ProcessState.ExitCode() != tt.ExpectedExitCode {
+				t.Errorf("Unexpected exit code %d, want %d", cmd.ProcessState.ExitCode(), tt.ExpectedExitCode)
 			}
 			test.Snapshot(t, out)
 		})
