@@ -12,6 +12,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode"
 
 	"filippo.io/age"
 	arg "github.com/alexflint/go-arg"
@@ -170,6 +171,14 @@ func UnescapeValue(value string) (string, error) {
 	if len(value) == 0 {
 		return "", nil
 	}
+
+	trimmed := strings.TrimLeftFunc(value, unicode.IsSpace)
+    if len(trimmed) == 0 {
+        return value, nil
+    }
+    if trimmed[0] != '\'' && trimmed[0] != '"' {
+        return value, nil
+    }
 
 	var unescaped strings.Builder
 	var i int
