@@ -6,6 +6,10 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
+
+	"github.com/slaskis/ace/internal/proc"
 )
 
 type Env struct {
@@ -58,11 +62,35 @@ func (cmd *Env) Run() error {
 		}
 	}
 
-	// run command with vars added
 	c := exec.Command(cmd.Command[0], cmd.Command[1:]...)
 	c.Env = append(os.Environ(), vars...)
 	c.Stdin = os.Stdin
 	c.Stderr = os.Stderr
 	c.Stdout = output
-	return c.Run()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer func() {
+		signal.Stop(sigChan)
+		close(sigChan)
+	}()
+
+	go func() {
+		for sig := range sigChan {
+			if c.Process != nil {
+				proc.ForwardSignal(c, sig)
+			}
+		}
+	}()
+
+	err = c.Run()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			os.Exit(exitErr.ExitCode())
+		}
+		return err
+	}
+
+	return nil
 }
