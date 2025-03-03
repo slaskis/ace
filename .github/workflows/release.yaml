@@ -28,7 +28,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: go build -ldflags '-s -w -X main.version=${{ github.event.release.tag_name }}' -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v github.com/slaskis/ace
+        run: go build -ldflags '-s -w -X main.version=${{ github.event.release.tag_name }}' -o ace-${{ matrix.goos }}-${{ matrix.arch }} -v .
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.arch }}
